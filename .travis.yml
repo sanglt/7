@@ -1,0 +1,52 @@
+# Ref:
+#   - https://github.com/sonnym/travis-ci-drupal-module-example/blob/master/.travis.yml
+language: php
+php:
+  - 5.3
+  - 5.4
+  - 5.5
+  # - hhvm
+
+# matrix:
+#   allow_failures:
+#     - php: hhvm
+
+mysql:
+  database: drupal
+  username: root
+  encoding: utf8
+
+install:
+  # ---------------------
+  # Install Drush
+  # ---------------------
+  - pear channel-discover pear.drush.org
+  - pear install drush/drush-5.8.0
+  - phpenv rehash
+
+  # ---------------------
+  # Setup DB
+  # ---------------------
+  - mysql -e 'create database drupal;'
+
+before_script:
+
+  # ---------------------
+  # Download the codebase
+  # ---------------------
+  - drush si testing --db-url=mysql://root:@localhost/drupal --yes
+  - drush dl views
+
+  # ---------------------
+  # Prepare env for the module
+  # ---------------------
+  - drush vset --yes file_temporary_path /tmp
+  - drush en -y simpletest views 
+
+  # ---------------------
+  # No cache data
+  # ---------------------
+  - drush cc all
+
+script:
+  - drush test-run --dirty 'ViewsBasicTest'
