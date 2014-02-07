@@ -49,4 +49,4 @@ before_script:
   - drush cc all
 
 script:
-  - drush test-run --dirty --all -xml
+  - drush test-run --dirty --all --xml
